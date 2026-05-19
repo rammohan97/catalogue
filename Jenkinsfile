@@ -6,6 +6,10 @@ pipeline {
     }
     environment {
         app_version = "1.1.2"
+        ACC_ID = "134163283084"
+        PROJECT = "roboshop"
+        COMPONENT = "catalogue"
+
     }
     stages {
         stage('Read Version') {
@@ -24,10 +28,19 @@ pipeline {
         }
         stage('Build Image') {
             steps {
-                sh """
-                    docker build -t catalogue:${app_version} .
-                    docker images
-                """
+                    withAWS(region: 'us-east-1', credentials: 'aws-creds'){
+                        sh """
+                            aws ecr get-login-password --region us-east-1 | docker login --username AWS 
+                            --password-stdin ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com
+
+                            docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${app_version} .
+
+                            docker images
+
+                            docker push ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${app_version}
+                            
+                        """
+                    }
             }
         }
     }
