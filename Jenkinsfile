@@ -22,6 +22,14 @@ pipeline {
                 sh 'npm install'
             }
         }
+        stage('Build Image') {
+            steps {
+                sh """
+                    docker build -t catalogue:${app_version} .
+                    docker images
+                """
+            }
+        }
     }
 
 }
