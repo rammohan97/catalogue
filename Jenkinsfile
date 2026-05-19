@@ -1,15 +1,22 @@
-@Library('jenkins-shared-library') _
+pipeline {
+    agent {
+        node {
+            label 'AGENT-1'
+        }
+    }
+    environment {
+        app_version = "1.1.2"
+    }
+    stages {
+        stage('Read Version') {
+            steps {
+                script {
+                    def packageJson = readJSON file: 'package.json'
+                    app_version = packageJson.version
+                    echo "Read version from package.json: ${app_version}"
+                }
+            }
+        }
+    }
 
-def configMap = [
-    project: "roboshop",
-    component: "catalogue"
-]
-
-echo "Going to execute Jenkins shared library"
-// if branch is not equal to main, then run CI pipeline
-if ( ! env.BRANCH_NAME.equalsIgnoreCase('main') ){
-    nodeJSEKSPipeline(configMap)
-}
-else {
-    echo "Please follow the CR process"
 }
